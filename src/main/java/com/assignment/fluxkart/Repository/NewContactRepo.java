@@ -20,7 +20,7 @@ public class NewContactRepo {
     public Integer findPrimaryIdByEmailIfExistOrMinId(String email) {
         String query = "SELECT COALESCE((SELECT c1.linked_id  FROM Contact c1 WHERE c1.email = ? ORDER BY c1.id ASC LIMIT 1), (SELECT MIN(c2.id) FROM Contact c2 WHERE c2.email = ? LIMIT 1)) FROM Contact c";
 
-        return jdbcTemplate.queryForObject(query, new Object[]{email, email}, Integer.class);
+        return jdbcTemplate.queryForObject(query, new Object[]{email}, Integer.class);
     }
 
     public Integer findPrimaryIdByPhNumberIfExistOrMinId(Integer number) {

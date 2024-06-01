@@ -40,12 +40,6 @@ public interface ContactRepository extends JpaRepository<Contact, Integer> {
     Integer findIdByEmailAndPhoneNumber(@Param("email") String email, @Param("number") Integer number);
 
 
-    @Query("SELECT MIN(c.linkedId) FROM Contact c WHERE c.email = :email")
-    Integer findMinLinkedIdByEmail( String email);
-
-    @Query("SELECT MIN(c.linkedId) FROM Contact c WHERE c.phoneNumber = :phoneNumber")
-    Integer findMinLinkedIdByPhoneNumber(@Param("phoneNumber") Integer phoneNumber);
-
     @Query("SELECT COALESCE(\n" +
             "  (SELECT c1.linkedId \n" +
             "   FROM Contact c1 \n" +
@@ -106,4 +100,16 @@ public interface ContactRepository extends JpaRepository<Contact, Integer> {
     Integer countByPhoneNumber(Integer number);
 
     Optional<Contact> findByEmailAndPhoneNumber(String email, Integer phoneNumber);
+
+    @Query("SELECT MIN(c.linkedId) FROM Contact c WHERE c.email = :email")
+    Integer findMinLinkedIdByEmail( String email);
+
+    @Query("SELECT MIN(c.id) FROM Contact c WHERE c.email = :email")
+    Integer findMinIdByEmail( String email);
+
+    @Query("SELECT MIN(c.linkedId) FROM Contact c WHERE c.phoneNumber = :phoneNumber")
+    Integer findMinLinkedIdByPhoneNumber(@Param("phoneNumber") Integer phoneNumber);
+
+    @Query("SELECT MIN(c.id) FROM Contact c WHERE c.phoneNumber = :phoneNumber")
+    Integer findMinIdByPhoneNumber(@Param("phoneNumber") Integer phoneNumber);
 }

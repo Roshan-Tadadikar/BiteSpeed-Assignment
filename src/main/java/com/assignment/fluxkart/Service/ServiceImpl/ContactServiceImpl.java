@@ -47,9 +47,9 @@ public class ContactServiceImpl implements ContactService {
         Integer primaryId = null;
 
         if(emailExists && !phoneNoExists){
-            primaryId = newContactRepo.findPrimaryIdByEmailIfExistOrMinId(request.getEmail());
+            primaryId = findPrimaryIdByEmailIfExistOrMinId(request.getEmail());
         }else if(phoneNoExists && !emailExists){
-            primaryId = newContactRepo.findPrimaryIdByPhNumberIfExistOrMinId(request.getPhoneNumber());
+            primaryId = findPrimaryIdByPhNumberIfExistOrMinId(request.getPhoneNumber());
         }
 
         if((emailExists && !phoneNoExists) || (phoneNoExists && !emailExists)){
@@ -57,8 +57,8 @@ public class ContactServiceImpl implements ContactService {
             return getAllContactsUsingLinkedId(primaryId);
         }
 
-        Integer primaryIdOfEmail = newContactRepo.findPrimaryIdByEmailIfExistOrMinId(request.getEmail());
-        Integer primaryIdOfPhNo = newContactRepo.findPrimaryIdByPhNumberIfExistOrMinId(request.getPhoneNumber());
+        Integer primaryIdOfEmail = findPrimaryIdByEmailIfExistOrMinId(request.getEmail());
+        Integer primaryIdOfPhNo = findPrimaryIdByPhNumberIfExistOrMinId(request.getPhoneNumber());
 
         if(primaryIdOfEmail.equals(primaryIdOfPhNo)){
             return getAllContactsUsingLinkedId(primaryIdOfPhNo);
@@ -72,7 +72,7 @@ public class ContactServiceImpl implements ContactService {
         
         Integer newPrimaryId = Math.min(primaryIdOfPhNo, primaryIdOfEmail);
         
-        if(newPrimaryId != primaryIdOfPhNo){
+        if(!newPrimaryId.equals(primaryIdOfPhNo)){
             contactRepository.updateContactDetailsByLinkedId(newPrimaryId, primaryIdOfPhNo);
             contactRepository.updateContactDetailsById(newPrimaryId, primaryIdOfPhNo);
         }else{
@@ -96,8 +96,8 @@ public class ContactServiceImpl implements ContactService {
 
         Integer linkedIdOrMinId = null;
         if(EmailPresent){
-            linkedIdOrMinId = newContactRepo.findPrimaryIdByEmailIfExistOrMinId(request.getEmail());
-        }else linkedIdOrMinId = newContactRepo.findPrimaryIdByPhNumberIfExistOrMinId(request.getPhoneNumber());
+            linkedIdOrMinId = findPrimaryIdByEmailIfExistOrMinId(request.getEmail());
+        }else linkedIdOrMinId = findPrimaryIdByPhNumberIfExistOrMinId(request.getPhoneNumber());
 
        return getAllContactsUsingLinkedId(linkedIdOrMinId);
     }
@@ -155,5 +155,22 @@ public class ContactServiceImpl implements ContactService {
         response.setPhoneNumbers(phoneNumberWithoutNull);
         response.setSecondaryContactIds(secondaryIds);
         return response;
+    }
+    
+    public Integer findPrimaryIdByEmailIfExistOrMinId(String email){
+        Integer linkedId = contactRepository.findMinLinkedIdByEmail(email);
+        if(linkedId==null){
+            return contactRepository.findMinIdByEmail(email);
+        }
+        return linkedId;
+    }
+    
+    public Integer findPrimaryIdByPhNumberIfExistOrMinId(Integer number){
+        Integer linkedId = contactRepository.findMinLinkedIdByPhoneNumber(number);
+        if(linkedId==null){
+            return contactRepository.findMinIdByPhoneNumber(number);
+        }
+        
+        return linkedId;
     }
 }
